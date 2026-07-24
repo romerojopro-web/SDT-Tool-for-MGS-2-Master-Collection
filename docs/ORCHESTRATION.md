@@ -47,12 +47,28 @@ pas les ambiances) et comment est-elle déclenchée ? **Non résolue.**
   déclenchement de l'alerte) ; les ambiances mêlent **nappes bouclées +
   one-shots** (`BP_SE.DAT` fournit les sons UI/objets/alarme globaux).
 
-**La seule voie restante vers une réponse certaine :** **désassembler la routine
-audio de l'EXE** (Ghidra/IDA), en partant des chaînes localisées
-`%s/stage/%s/pk%06x.sdx` (`0x0072ECC0`) et
-`*** ERROR: SoundData(voi):mtrack=%x` (`0x0072ED00`). Les données de musique
-sont soit embarquées dans un format non encore cracké, soit générées par code —
-le désassemblage tranche. **Objectif long terme, pas la prochaine étape.**
+**PERCÉE (2026-07-24/25) — le désassemblage confirme le driver raven dans l'EXE.**
+L'EXE est packé **SteamStub** (`.text` chiffré, entropie 7.999, entry point dans
+`.bind`) ; unpacké avec **Steamless** → `…exe.unpacked.exe` (code x64 clair).
+Analyse en Python (**capstone + pefile**, pas besoin de Java). Résultat :
+
+- **Le driver son PS2 de raven EST compilé dans l'EXE**, et la musique in-game
+  tourne dessus. Les **codes son 32 bits** de raven sont des immédiats littéraux
+  dans `.text` : PLAY song1..8 (`0x01000001`..`08`), PAUSE (`0x01FFFF01`), RESUME
+  (`0x01FFFF02`), STOP (`0x01FFFFFF`), First-Person (`0x01FFFF20`). Le code jeu
+  les envoie depuis de nombreux sites.
+- **Intake des commandes = `sub_14006F8D0`** : reçoit un code, reconnaît
+  PLAY-song, l'écrit dans le global **`0x141540854`** (« code musique courant »),
+  puis saute dans la chaîne de handlers (`sub_14005D740` → `sub_14005E080` → …).
+- **Struct d'état du driver** = pointeur global **`0x14177EAF8`** (offsets de
+  champs +0x50/+0x54/+0x58 clampé à ±0x7f0…). Les chaînes `host0:./sound/*` ont
+  **0 référence** = bien du code PS2 mort.
+
+**Ce qui reste (la continuation) :** suivre la chaîne de handlers jusqu'au
+**pointeur de données de song** (le `sng_data` de raven : n_songs + table +
+jusqu'à 13 pistes) et trouver **qui l'écrit** = d'où viennent les octets de
+musique. C'est le dernier inconnu. Outils prêts dans le scratchpad `re/`
+(`analyze.py <VA>` désassemble une fonction via la table `.pdata`).
 
 ---
 
