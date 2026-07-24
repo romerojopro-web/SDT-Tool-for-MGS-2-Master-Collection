@@ -48,9 +48,12 @@ pas les ambiances) et comment est-elle déclenchée ? **Non résolue.**
   one-shots** (`BP_SE.DAT` fournit les sons UI/objets/alarme globaux).
 
 **PERCÉE (2026-07-24/25) — le désassemblage confirme le driver raven dans l'EXE.**
-L'EXE est packé **SteamStub** (`.text` chiffré, entropie 7.999, entry point dans
-`.bind`) ; unpacké avec **Steamless** → `…exe.unpacked.exe` (code x64 clair).
-Analyse en Python (**capstone + pefile**, pas besoin de Java). Résultat :
+L'EXE de vente porte une **mesure technique de protection** (`.text` illisible au
+repos, entropie 7.999, entry point dans `.bind`). L'analyse porte sur une **image
+localement lisible** de l'exécutable (code x64 clair) — RE pour interopérabilité
+sur sa propre copie légale (Directive UE 2009/24 art. 6, CPI L122-6-1) ; aucun
+binaire ni donnée de jeu n'est inclus dans le repo. Analyse en Python
+(**capstone + pefile**). Résultat :
 
 - **Le driver son PS2 de raven EST compilé dans l'EXE**, et la musique in-game
   tourne dessus. Les **codes son 32 bits** de raven sont des immédiats littéraux

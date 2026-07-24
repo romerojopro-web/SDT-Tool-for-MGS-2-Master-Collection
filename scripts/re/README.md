@@ -1,11 +1,14 @@
-# `scripts/re/` — reverse-engineering tools for the game exe
+# `scripts/re/` — interoperability analysis tools
 
-Small capstone/pefile scripts used to locate the in-game music engine inside
-`METAL GEAR SOLID2.exe`. See `docs/EXE_REVERSE.md` for the findings and the map
-of addresses; this folder is just the tooling.
+Small capstone/pefile scripts used to study how the game engine drives its audio,
+so the tool can interoperate with it. See `docs/EXE_REVERSE.md` for the findings.
+This folder is just the tooling.
 
-These contain **no game data** — only analysis code. They read the exe on the
-dev machine in place and print addresses/disassembly.
+**Interoperability research on your own legally-owned copy** — permitted under the
+EU Software Directive (2009/24/EC, Art. 6) and French law (CPI L122-6-1). These
+scripts contain **no game data and no game code** — only analysis code that reads
+a binary on your own machine and prints addresses/disassembly. **No game
+executable, protected or otherwise, is included in or distributed by this repo.**
 
 ## Requirements
 
@@ -13,15 +16,16 @@ dev machine in place and print addresses/disassembly.
 pip install capstone pefile
 ```
 
-## The exe must be un-packed first
+## Pointing the scripts at a binary
 
-The retail exe is SteamStub-DRM-packed: its code section is encrypted on disk, so
-static analysis sees only garbage. Unpack it (e.g. with **Steamless**) to get
-`METAL GEAR SOLID2.exe.unpacked.exe`, and point the scripts at that file. Each
-script has the path near the top:
+Static analysis needs an image of the executable whose code section is readable
+(a retail build may apply a technical protection measure that leaves the code
+unreadable at rest). Obtaining such an image from your own copy, and the means of
+doing so, are outside the scope of this repo. Once you have a locally-readable
+image, set the path near the top of each script:
 
 ```python
-EXE = r"C:\Games\Steam\steamapps\common\MGS2\METAL GEAR SOLID2.exe.unpacked.exe"
+EXE = r"...\an-image-readable-on-your-machine.exe"
 ```
 
 ## Scripts

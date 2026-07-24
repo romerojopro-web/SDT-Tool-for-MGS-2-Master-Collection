@@ -11,18 +11,28 @@ command flow, the SPU voice table and the playback cursor are located. The one
 remaining unknown is the **`sng_data` song-table pointer** (where the music bytes
 live and who loads them).
 
+> **Legal basis.** This is **reverse engineering for interoperability** — study
+> of the game's audio engine so that this tool (a mod utility for a game you own)
+> can work with it. That purpose is permitted under the EU Software Directive
+> (2009/24/EC, Art. 6) and French law (CPI L122-6-1), and is performed on the
+> user's own legally-owned copy. **No game executable — protected or not — and
+> no game data are included in or distributed by this repository.** Obtaining a
+> statically-readable image of a retail binary, and the means of doing so, are
+> the reader's own responsibility and outside the scope of this repo.
+
 ---
 
 ## Setup
 
-- The retail exe is **SteamStub-DRM-packed**: `.text` is encrypted on disk
-  (entropy 7.999; entry point sits inside a `.bind` section). That is why an
-  early plaintext string-scan found the strings but **zero** code references.
-- Unpacked with **Steamless** → `METAL GEAR SOLID2.exe.unpacked.exe`
-  (`.text` entropy back to 6.488 — real x64 code). **All addresses below are for
-  the unpacked file.**
+- The retail exe applies a **technical protection measure**: `.text` is not
+  readable at rest (entropy 7.999; entry point sits inside a `.bind` section).
+  That is why an early plaintext string-scan found the strings but **zero** code
+  references.
+- All addresses below are for a **locally-readable image** of the executable —
+  one whose `.text` is real x64 code (entropy ~6.5). How such an image is
+  obtained is outside this repo's scope.
 - Analysed with **capstone + pefile** in Python (Ghidra needs JDK 21; only a
-  JRE 17 was on the machine). Tools live in the `scripts/re/`:
+  JRE 17 was on the machine). Tools live in `scripts/re/`:
   - `pe_map.py` — sections, image base, file-offset ↔ VA.
   - `xrefs.py` — RIP-relative `lea` references to a string/address.
   - `hunt.py` — occurrences of the raven sound-code immediates; call xrefs.
@@ -141,11 +151,10 @@ codes), separate from the current cue Sequencer.
 
 ```bash
 pip install capstone pefile      # already present on the dev machine
-# point the scripts/re/ tools at:
-#   C:\Games\Steam\steamapps\common\MGS2\METAL GEAR SOLID2.exe.unpacked.exe
+# set EXE at the top of the scripts/re/ tools to a locally-readable image
 python scripts/re/analyze.py 0x14006225B   # the dispatcher
 python scripts/re/analyze.py 0x140062B1D   # PLAY-song common handler (voice setup)
 ```
 
-> The unpacked exe is a local artefact on the dev machine; it is **not** in the
-> repo (no game files are ever committed).
+> Any local image of the executable stays on the dev machine; it is **not** in
+> the repo (no game files are ever committed — `.gitignore` blocks `*.exe`).
